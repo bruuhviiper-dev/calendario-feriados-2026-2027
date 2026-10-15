@@ -5,10 +5,12 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../data/app_info.dart';
 import '../data/app_theme.dart';
+import '../data/holidays.dart';
 import '../services/app_state.dart';
 import '../services/notif_service.dart';
 import '../widgets/banner_ad.dart';
 import 'appearance_screen.dart';
+import 'date_tools_screen.dart';
 import 'store_screen.dart';
 
 /// Aba "Mais": lembrete diário, avaliar, compartilhar o app e cross-promoção
@@ -43,6 +45,52 @@ class MoreScreen extends StatelessWidget {
     }
   }
 
+  void _pickState(BuildContext context, AppState s) {
+    final ufs = Holidays.ufNames.keys.toList()
+      ..sort((a, b) => Holidays.ufNames[a]!.compareTo(Holidays.ufNames[b]!));
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (ctx) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.7,
+        maxChildSize: 0.9,
+        builder: (ctx, scroll) => ListView(
+          controller: scroll,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
+              child: Text('Escolha seu estado',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            ),
+            RadioListTile<String>(
+              value: '',
+              groupValue: s.uf,
+              title: const Text('Nenhum (só nacionais)'),
+              onChanged: (v) {
+                s.setUf('');
+                Navigator.pop(ctx);
+              },
+            ),
+            for (final uf in ufs)
+              RadioListTile<String>(
+                value: uf,
+                groupValue: s.uf,
+                title: Text(Holidays.ufNames[uf]!),
+                secondary: Text(uf,
+                    style: const TextStyle(fontWeight: FontWeight.w800)),
+                onChanged: (v) {
+                  s.setUf(uf);
+                  Navigator.pop(ctx);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final apps = AppInfo.otherApps;
@@ -70,6 +118,29 @@ class MoreScreen extends StatelessWidget {
             ),
           ),
           const Divider(height: 8),
+          Consumer<AppState>(
+            builder: (c, s, _) => ListTile(
+              leading: const Icon(Icons.location_on_rounded,
+                  color: Color(0xFF059669)),
+              title: const Text('Meu estado (feriados estaduais)'),
+              subtitle: Text(s.uf.isEmpty
+                  ? 'Toque para escolher seu estado 📍'
+                  : 'Mostrando feriados de ${Holidays.ufNames[s.uf]}'),
+              trailing: s.uf.isEmpty
+                  ? const Icon(Icons.chevron_right_rounded)
+                  : Text(s.uf,
+                      style: const TextStyle(fontWeight: FontWeight.w800)),
+              onTap: () => _pickState(context, s),
+            ),
+          ),
+          ListTile(
+            leading:
+                const Icon(Icons.calculate_rounded, color: Color(0xFF2563EB)),
+            title: const Text('Ferramentas de data'),
+            subtitle: const Text('Dias entre datas, somar/subtrair dias 🧮'),
+            onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const DateToolsScreen())),
+          ),
           ListTile(
             leading: const Icon(Icons.palette_rounded, color: Color(0xFF7C3AED)),
             title: const Text('Aparência e temas'),

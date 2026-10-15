@@ -389,7 +389,7 @@ class _DaySheet extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                        '${holiday.name}${holiday.isNacional ? '' : ' (ponto facultativo)'}',
+                        '${holiday.name}${holiday.isNacional ? '' : holiday.isEstadual ? ' (feriado estadual)' : ' (ponto facultativo)'}',
                         style: TextStyle(
                             fontWeight: FontWeight.w700,
                             color: scheme.primary)),

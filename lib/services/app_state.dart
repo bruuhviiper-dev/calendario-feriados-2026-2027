@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/app_palettes.dart';
 import '../data/calendar_event.dart';
+import '../data/holidays.dart';
 import '../data/models.dart';
 
 /// Estado global: favoritos, tema, compras/premium e tema de cores.
@@ -30,6 +31,7 @@ class AppState extends ChangeNotifier {
   static const _kRecipient = 'recipient_name';
   static const _kCatSingle = 'cat_single_col';
   static const _kEvents = 'cal_events_json';
+  static const _kUf = 'selected_uf';
 
   /// Separador interno para serializar favoritos ("referenciatexto").
   static const _favSep = '';
@@ -205,7 +207,16 @@ class AppState extends ChangeNotifier {
     _tempProUntil = tp != null ? DateTime.fromMillisecondsSinceEpoch(tp) : null;
     _recipientName = _prefs.getString(_kRecipient) ?? '';
     _catSingleCol = _prefs.getBool(_kCatSingle) ?? false;
+    Holidays.selectedUf = _prefs.getString(_kUf) ?? '';
     _loadEvents();
+  }
+
+  // ----- estado (UF) para feriados estaduais -----
+  String get uf => Holidays.selectedUf;
+  void setUf(String uf) {
+    Holidays.selectedUf = uf;
+    _prefs.setString(_kUf, uf);
+    notifyListeners();
   }
 
   // ----- eventos pessoais -----

@@ -3,7 +3,7 @@
 /// (algoritmo de Computus / Meeus-Jones-Butcher, calendário gregoriano).
 library;
 
-enum HolidayType { nacional, facultativo }
+enum HolidayType { nacional, facultativo, estadual }
 
 class Holiday {
   const Holiday(this.date, this.name, this.type, {this.emoji = '📅'});
@@ -13,10 +13,64 @@ class Holiday {
   final String emoji;
 
   bool get isNacional => type == HolidayType.nacional;
+  bool get isEstadual => type == HolidayType.estadual;
 }
 
 class Holidays {
   Holidays._();
+
+  /// UF selecionada pelo usuário ('' = nenhum). Quando definida, os feriados
+  /// estaduais correspondentes entram em [forYear]/[on]. Setada pelo AppState.
+  static String selectedUf = '';
+
+  /// Nome dos estados (código → nome), para o seletor.
+  static const ufNames = <String, String>{
+    'AC': 'Acre', 'AL': 'Alagoas', 'AP': 'Amapá', 'AM': 'Amazonas',
+    'BA': 'Bahia', 'CE': 'Ceará', 'DF': 'Distrito Federal', 'MA': 'Maranhão',
+    'MS': 'Mato Grosso do Sul', 'MG': 'Minas Gerais', 'PA': 'Pará',
+    'PB': 'Paraíba', 'PR': 'Paraná', 'PE': 'Pernambuco', 'PI': 'Piauí',
+    'RJ': 'Rio de Janeiro', 'RN': 'Rio Grande do Norte',
+    'RS': 'Rio Grande do Sul', 'RO': 'Rondônia', 'RR': 'Roraima',
+    'SP': 'São Paulo', 'SE': 'Sergipe', 'TO': 'Tocantins',
+  };
+
+  /// Feriados estaduais fixos (mês, dia, nome, emoji) por UF. Só datas fixas
+  /// amplamente reconhecidas (feriado civil estadual).
+  static const _stateData = <String, List<List<Object>>>{
+    'AC': [[6, 15, 'Aniversário do Acre', '🌳'], [9, 5, 'Dia da Amazônia', '🌳']],
+    'AL': [[9, 16, 'Emancipação de Alagoas', '🎗️']],
+    'AP': [[9, 13, 'Criação do Amapá', '🎗️']],
+    'AM': [[9, 5, 'Elevação do Amazonas', '🌳']],
+    'BA': [[7, 2, 'Independência da Bahia', '🎉']],
+    'CE': [[3, 25, 'Data Magna do Ceará', '⛓️']],
+    'DF': [[4, 21, 'Fundação de Brasília', '🏛️'], [11, 30, 'Dia do Evangélico', '🙏']],
+    'MA': [[7, 28, 'Adesão do Maranhão', '🎉']],
+    'MS': [[10, 11, 'Criação de Mato Grosso do Sul', '🎗️']],
+    'MG': [[12, 8, 'Imaculada Conceição (MG)', '🙏']],
+    'PA': [[8, 15, 'Adesão do Pará', '🎉']],
+    'PB': [[8, 5, 'Fundação da Paraíba', '🎗️']],
+    'PR': [[12, 19, 'Emancipação do Paraná', '🎗️']],
+    'PE': [[3, 6, 'Revolução Pernambucana', '🎖️']],
+    'PI': [[10, 19, 'Dia do Piauí', '🎗️']],
+    'RJ': [[4, 23, 'São Jorge', '🐉']],
+    'RN': [[8, 7, 'Dia do Rio Grande do Norte', '🎗️']],
+    'RS': [[9, 20, 'Revolução Farroupilha', '🐎']],
+    'RO': [[1, 4, 'Criação de Rondônia', '🎗️']],
+    'RR': [[10, 5, 'Criação de Roraima', '🎗️']],
+    'SP': [[7, 9, 'Revolução Constitucionalista', '🎖️']],
+    'SE': [[7, 8, 'Emancipação de Sergipe', '🎗️']],
+    'TO': [[10, 5, 'Criação do Tocantins', '🎗️']],
+  };
+
+  static List<Holiday> _stateHolidays(int year, String uf) {
+    final rows = _stateData[uf];
+    if (rows == null) return const [];
+    return [
+      for (final r in rows)
+        Holiday(DateTime(year, r[0] as int, r[1] as int), r[2] as String,
+            HolidayType.estadual, emoji: r[3] as String),
+    ];
+  }
 
   /// Domingo de Páscoa do [year] (gregoriano) — Meeus/Jones/Butcher.
   static DateTime easter(int year) {
@@ -77,6 +131,8 @@ class Holidays {
           emoji: '🍞'),
       Holiday(DateTime(year, 10, 28), 'Dia do Servidor Público',
           HolidayType.facultativo, emoji: '🏢'),
+      // ---- ESTADUAIS (se o usuário escolheu um estado) ----
+      if (selectedUf.isNotEmpty) ..._stateHolidays(year, selectedUf),
     ];
     list.sort((a, b) => a.date.compareTo(b.date));
     return list;
