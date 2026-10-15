@@ -3,6 +3,7 @@ import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 
+import '../data/calendar_event.dart';
 import '../data/holidays.dart';
 
 /// Notificações de FERIADO: avisa na véspera de cada feriado nacional
@@ -78,6 +79,22 @@ class NotifService {
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );
+  }
+
+  /// Agenda (ou reagenda) a notificação de um evento pessoal.
+  Future<void> scheduleEvent(CalendarEvent e) async {
+    if (!_ready) await init();
+    await _plugin.cancel(e.id);
+    if (!e.notify) return;
+    final when = e.when;
+    if (!when.isAfter(DateTime.now())) return;
+    final body = e.hasTime ? '${e.timeLabel} · ${e.title}' : e.title;
+    await _schedule(e.id, '🔔 Lembrete', body, when);
+  }
+
+  Future<void> cancelEvent(int id) async {
+    if (!_ready) await init();
+    await _plugin.cancel(id);
   }
 
   Future<void> cancelAll() async => _plugin.cancelAll();

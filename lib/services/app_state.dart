@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/app_palettes.dart';
+import '../data/calendar_event.dart';
 import '../data/models.dart';
 
 /// Estado global: favoritos, tema, compras/premium e tema de cores.
@@ -26,6 +29,7 @@ class AppState extends ChangeNotifier {
   static const _kTempPro = 'temp_pro_until';
   static const _kRecipient = 'recipient_name';
   static const _kCatSingle = 'cat_single_col';
+  static const _kEvents = 'cal_events_json';
 
   /// Separador interno para serializar favoritos ("referenciatexto").
   static const _favSep = '';
@@ -50,6 +54,9 @@ class AppState extends ChangeNotifier {
   String _customSignature = '';
   DateTime? _tempProUntil;
   bool _catSingleCol = false;
+
+  /// Eventos pessoais, agrupados por dia (yyyy-MM-dd).
+  final Map<String, List<CalendarEvent>> _events = {};
 
   // ----- básico -----
   /// Frases favoritadas (as mais recentes primeiro).
@@ -198,6 +205,61 @@ class AppState extends ChangeNotifier {
     _tempProUntil = tp != null ? DateTime.fromMillisecondsSinceEpoch(tp) : null;
     _recipientName = _prefs.getString(_kRecipient) ?? '';
     _catSingleCol = _prefs.getBool(_kCatSingle) ?? false;
+    _loadEvents();
+  }
+
+  // ----- eventos pessoais -----
+  void _loadEvents() {
+    _events.clear();
+    final raw = _prefs.getString(_kEvents);
+    if (raw == null || raw.isEmpty) return;
+    try {
+      for (final item in jsonDecode(raw) as List) {
+        final e = CalendarEvent.fromJson(item as Map<String, dynamic>);
+        (_events[e.dayKey] ??= []).add(e);
+      }
+    } catch (_) {}
+  }
+
+  void _saveEvents() {
+    final all = [for (final list in _events.values) ...list];
+    _prefs.setString(_kEvents, jsonEncode(all.map((e) => e.toJson()).toList()));
+  }
+
+  /// Eventos de um dia (ordenados por hora).
+  List<CalendarEvent> eventsOn(DateTime day) {
+    final list = _events[CalendarEvent.keyOf(day)] ?? const [];
+    final sorted = [...list]
+      ..sort((a, b) => (a.hour ?? 99) * 60 + (a.minute ?? 0) -
+          ((b.hour ?? 99) * 60 + (b.minute ?? 0)));
+    return sorted;
+  }
+
+  bool hasEventsOn(DateTime day) =>
+      (_events[CalendarEvent.keyOf(day)]?.isNotEmpty) ?? false;
+
+  /// Próximos eventos a partir de hoje (agenda).
+  List<CalendarEvent> upcomingEvents({int limit = 50}) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final all = [for (final list in _events.values) ...list]
+        .where((e) => !e.date.isBefore(today))
+        .toList()
+      ..sort((a, b) => a.when.compareTo(b.when));
+    return all.take(limit).toList();
+  }
+
+  void addEvent(CalendarEvent e) {
+    (_events[e.dayKey] ??= []).add(e);
+    _saveEvents();
+    notifyListeners();
+  }
+
+  void removeEvent(CalendarEvent e) {
+    _events[e.dayKey]?.removeWhere((x) => x.id == e.id);
+    if (_events[e.dayKey]?.isEmpty ?? false) _events.remove(e.dayKey);
+    _saveEvents();
+    notifyListeners();
   }
 
   void toggleFavorite(Verse v) {
