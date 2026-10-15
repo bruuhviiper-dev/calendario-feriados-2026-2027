@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/app_theme.dart';
 import 'screens/calendar_screen.dart';
+import 'screens/feriadoes_screen.dart';
 import 'screens/feriados_screen.dart';
 import 'screens/more_screen.dart';
 import 'screens/splash_screen.dart';
@@ -113,11 +114,12 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
 
-  final _navKeys = List.generate(3, (_) => GlobalKey<NavigatorState>());
+  final _navKeys = List.generate(4, (_) => GlobalKey<NavigatorState>());
 
   static const _roots = [
     CalendarScreen(),
     FeriadosScreen(),
+    FeriadoesScreen(),
     MoreScreen(),
   ];
 
@@ -198,6 +200,10 @@ class _HomeShellState extends State<HomeShell> {
                       icon: Icon(Icons.event_outlined),
                       selectedIcon: Icon(Icons.event_rounded),
                       label: 'Feriados'),
+                  NavigationDestination(
+                      icon: Icon(Icons.beach_access_outlined),
+                      selectedIcon: Icon(Icons.beach_access_rounded),
+                      label: 'Feriadões'),
                   NavigationDestination(
                       icon: Icon(Icons.more_horiz_rounded),
                       selectedIcon: Icon(Icons.more_horiz_rounded),
