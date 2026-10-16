@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../data/holidays.dart';
 import '../widgets/banner_ad.dart';
+import '../widgets/state_chip.dart';
 import '../widgets/theme_toggle.dart';
 
 /// Próximos feriados (com contagem regressiva) + lista completa do ano,
@@ -44,9 +45,11 @@ class _FeriadosScreenState extends State<FeriadosScreen> {
       ),
       body: ListView(
         children: [
+          // ---- Meu estado (chip em destaque) ----
+          const StateChip(margin: EdgeInsets.fromLTRB(16, 12, 16, 0)),
           // ---- Próximos feriados (destaque) ----
           const Padding(
-            padding: EdgeInsets.fromLTRB(18, 14, 18, 8),
+            padding: EdgeInsets.fromLTRB(18, 10, 18, 8),
             child: Text('Próximos feriados',
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
           ),

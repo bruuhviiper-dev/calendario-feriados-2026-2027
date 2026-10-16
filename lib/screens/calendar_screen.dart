@@ -7,6 +7,7 @@ import '../data/holidays.dart';
 import '../services/app_state.dart';
 import '../services/notif_service.dart';
 import '../widgets/banner_ad.dart';
+import '../widgets/state_chip.dart';
 import '../widgets/theme_toggle.dart';
 
 /// Tela principal: contagem pro próximo feriado + grade do mês (feriados e
@@ -86,6 +87,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       body: ListView(
         children: [
+          const StateChip(margin: EdgeInsets.fromLTRB(14, 12, 14, 2)),
           _countdownCard(scheme),
           // ---- cabeçalho do mês ----
           Padding(

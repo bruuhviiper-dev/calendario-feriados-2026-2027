@@ -9,6 +9,7 @@ import '../services/ads_service.dart';
 import '../services/app_state.dart';
 import '../services/notif_service.dart';
 import '../widgets/banner_ad.dart';
+import '../widgets/state_chip.dart';
 import '../widgets/theme_toggle.dart';
 import 'appearance_screen.dart';
 import 'date_tools_screen.dart';
@@ -44,52 +45,6 @@ class MoreScreen extends StatelessWidget {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
-  }
-
-  void _pickState(BuildContext context, AppState s) {
-    final ufs = Holidays.ufNames.keys.toList()
-      ..sort((a, b) => Holidays.ufNames[a]!.compareTo(Holidays.ufNames[b]!));
-    showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (ctx) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.7,
-        maxChildSize: 0.9,
-        builder: (ctx, scroll) => ListView(
-          controller: scroll,
-          children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
-              child: Text('Escolha seu estado',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-            ),
-            RadioListTile<String>(
-              value: '',
-              groupValue: s.uf,
-              title: const Text('Nenhum (só nacionais)'),
-              onChanged: (v) {
-                s.setUf('');
-                Navigator.pop(ctx);
-              },
-            ),
-            for (final uf in ufs)
-              RadioListTile<String>(
-                value: uf,
-                groupValue: s.uf,
-                title: Text(Holidays.ufNames[uf]!),
-                secondary: Text(uf,
-                    style: const TextStyle(fontWeight: FontWeight.w800)),
-                onChanged: (v) {
-                  s.setUf(uf);
-                  Navigator.pop(ctx);
-                },
-              ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -134,7 +89,7 @@ class MoreScreen extends StatelessWidget {
                   ? const Icon(Icons.chevron_right_rounded)
                   : Text(s.uf,
                       style: const TextStyle(fontWeight: FontWeight.w800)),
-              onTap: () => _pickState(context, s),
+              onTap: () => showStatePicker(context),
             ),
           ),
           ListTile(
