@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' show Color;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -24,7 +25,7 @@ class NotifService {
     } catch (_) {
       tz.setLocalLocation(tz.getLocation('America/Sao_Paulo'));
     }
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const android = AndroidInitializationSettings('ic_stat_notify');
     await _plugin.initialize(const InitializationSettings(android: android));
     await _plugin
         .resolvePlatformSpecificImplementation<
@@ -73,9 +74,10 @@ class NotifService {
           channelDescription: 'Avisos na véspera dos feriados',
           importance: Importance.high,
           priority: Priority.high,
-          // Ícone pequeno (status bar) + ícone colorido do app (largeIcon),
-          // para a notificação aparecer SEMPRE com a identidade do app.
-          icon: '@mipmap/ic_launcher',
+          // Ícone pequeno MONOCROMÁTICO (status bar) tintado com a cor da marca
+          // + ícone colorido do app (largeIcon) na notificação expandida.
+          icon: 'ic_stat_notify',
+          color: Color(0xFF2563EB),
           largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
         ),
       ),

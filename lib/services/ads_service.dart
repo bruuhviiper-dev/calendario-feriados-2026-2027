@@ -23,7 +23,7 @@ class AdsService with WidgetsBindingObserver {
   static const _realBanner = 'ca-app-pub-5880219350817278/1690432673';
   static const _realInterstitial = 'ca-app-pub-5880219350817278/5506719290';
   static const _realRewarded = 'ca-app-pub-5880219350817278/2580490866';
-  static const _realAppOpen = 'ca-app-pub-0000000000000000/0000000000';
+  static const _realAppOpen = 'ca-app-pub-5880219350817278/9470015032';
   static bool _ph(String id) => id.contains('0000000000');
 
   bool _initialized = false;
@@ -32,10 +32,10 @@ class AdsService with WidgetsBindingObserver {
   /// Setado pelo banner (lê o AppState): usuário pagante não vê anúncios.
   bool adsRemoved = false;
 
-  /// Intersticial LIGADO (intervalo mínimo entre exibições + a cada N ações,
-  /// pra não atrapalhar). App-open ainda desligado (sem ID real).
+  /// Intersticial e app-open LIGADOS, com throttle (intervalo mínimo entre
+  /// exibições) pra não atrapalhar a usabilidade.
   bool interstitialEnabled = true;
-  bool appOpenEnabled = false;
+  bool appOpenEnabled = true;
 
   InterstitialAd? _interstitial;
   bool _loadingInterstitial = false;
@@ -187,6 +187,12 @@ class AdsService with WidgetsBindingObserver {
     final now = DateTime.now();
     if (_lastAppOpenShown != null &&
         now.difference(_lastAppOpenShown!) < const Duration(minutes: 4)) {
+      return;
+    }
+    // Não emenda app-open logo depois de um intersticial (o resumo dispara
+    // ao fechar o intersticial). Evita "anúncio em cima de anúncio".
+    if (_lastInterstitialShown != null &&
+        now.difference(_lastInterstitialShown!) < const Duration(seconds: 90)) {
       return;
     }
     final ad = _appOpenAd;
