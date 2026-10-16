@@ -90,23 +90,26 @@ class _FeriadosScreenState extends State<FeriadosScreen> {
   Widget _nextCard(Holiday h, ColorScheme scheme) {
     final days = Holidays.daysUntil(_today, h.date);
     final wd = _weekdays[h.date.weekday % 7];
+    // Cores vívidas e fixas (não dependem do tema) para o card se destacar
+    // bem — azul→índigo nos nacionais, ardósia nos facultativos.
+    final c1 = h.isNacional ? const Color(0xFF2563EB) : const Color(0xFF64748B);
+    final c2 = h.isNacional ? const Color(0xFF4F46E5) : const Color(0xFF475569);
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: h.isNacional
-              ? [scheme.primary, scheme.primary.withValues(alpha: 0.75)]
-              : [Colors.grey.shade600, Colors.grey.shade500],
+          colors: [c1, c2],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
         boxShadow: [
           BoxShadow(
-              color: scheme.primary.withValues(alpha: 0.25),
-              blurRadius: 14,
-              offset: const Offset(0, 6)),
+              color: c1.withValues(alpha: 0.42),
+              blurRadius: 20,
+              offset: const Offset(0, 8)),
         ],
       ),
       child: Row(
@@ -143,12 +146,12 @@ class _FeriadosScreenState extends State<FeriadosScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.22),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(_countdown(days),
-                style: const TextStyle(
-                    color: Colors.white,
+                style: TextStyle(
+                    color: c1,
                     fontWeight: FontWeight.w800,
                     fontSize: 12.5)),
           ),

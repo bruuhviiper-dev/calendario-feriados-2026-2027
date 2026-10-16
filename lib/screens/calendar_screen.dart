@@ -158,7 +158,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             for (final h in monthHolidays) _holidayTile(h, scheme),
           const SizedBox(height: 12),
           _legend(scheme),
-          const SizedBox(height: 20),
+          // espaço para a legenda não ficar atrás do FAB "+ Evento"
+          const SizedBox(height: 100),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(

@@ -32,4 +32,14 @@ class AppInfo {
 
   static List<(String, String)> get otherApps =>
       apps.where((a) => a.$2 != packageId).toList();
+
+  /// Apps em DESTAQUE na aba Mais (lojinha) — incentivo de download.
+  /// (emoji, nome, packageId)
+  static const List<(String, String, String)> featured = [
+    ('🤝', 'Frases de Amizade', 'com.frasesdeamizade.amizade'),
+    ('💭', 'Frases para Refletir', 'com.frasespararefletir.refletir'),
+    ('🎂', 'Mensagens de Aniversário', 'com.aniversario.aniversario'),
+    ('😏', 'Frases Indiretas', 'com.indiretas.indiretas'),
+    ('💬', 'Frases para Status', 'com.frasesstatus.frases_status'),
+  ];
 }

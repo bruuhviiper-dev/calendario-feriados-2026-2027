@@ -36,10 +36,6 @@ class MoreScreen extends StatelessWidget {
     [Color(0xFFFC466B), Color(0xFF3F5EFB)],
   ];
 
-  static const List<String> _emojis = [
-    '💬', '📖', '☀️', '🔥', '💌', '🎂', '❤️', '🎤', '😂', '🌧️', '🙏', '🌱',
-  ];
-
   Future<void> _open(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -49,7 +45,6 @@ class MoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final apps = AppInfo.otherApps;
     return Scaffold(
       bottomNavigationBar: const BannerPlaceholder(),
       appBar: AppBar(
@@ -140,31 +135,40 @@ class MoreScreen extends StatelessWidget {
           ),
           const MediumRectangleAd(),
           const SizedBox(height: 8),
-          // ---- Cross-promoção (visual sóbrio, estilo lista de apps) ----
+          // ---- Lojinha de apps em destaque (incentivo de download) ----
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 2),
-            child: Text('Mais apps da Phantom',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800)),
+            child: Row(
+              children: [
+                const Icon(Icons.auto_awesome_rounded,
+                    size: 18, color: Color(0xFFF59E0B)),
+                const SizedBox(width: 7),
+                Text('Apps que você vai amar',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800)),
+              ],
+            ),
           ),
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text('Todos grátis — toque para conhecer',
+            child: Text('Todos grátis — baixe pelo menos um e aproveite',
                 style: TextStyle(fontSize: 12.5, color: Colors.grey)),
           ),
-          for (int i = 0; i < apps.length; i++)
+          for (int i = 0; i < AppInfo.featured.length; i++)
             _PromoCard(
-              title: apps[i].$1,
-              emoji: _emojis[i % _emojis.length],
+              title: AppInfo.featured[i].$2,
+              emoji: AppInfo.featured[i].$1,
               gradient: _grads[i % _grads.length],
-              onTap: () => _open(AppInfo.playUrlFor(apps[i].$2)),
+              onTap: () => _open(AppInfo.playUrlFor(AppInfo.featured[i].$3)),
             ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: OutlinedButton.icon(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
+            child: FilledButton.tonalIcon(
               onPressed: () => _open(AppInfo.devUrl),
               icon: const Icon(Icons.storefront_rounded),
-              label: const Text('Ver todos os apps na Play Store'),
+              label: const Text('Ver mais na Play Store'),
+              style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48)),
             ),
           ),
           const SizedBox(height: 12),
