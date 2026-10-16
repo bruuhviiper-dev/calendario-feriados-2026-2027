@@ -7,6 +7,7 @@ import '../data/holidays.dart';
 import '../services/app_state.dart';
 import '../services/notif_service.dart';
 import '../widgets/banner_ad.dart';
+import '../widgets/theme_toggle.dart';
 
 /// Tela principal: contagem pro próximo feriado + grade do mês (feriados e
 /// eventos pessoais) + detalhe do dia com lembretes. Qualquer ano.
@@ -80,6 +81,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             icon: const Icon(Icons.today_rounded, size: 18),
             label: const Text('Hoje'),
           ),
+          const ThemeToggleButton(),
         ],
       ),
       body: ListView(
@@ -187,7 +189,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       child: Row(
         children: [
-          Text(h.emoji, style: const TextStyle(fontSize: 38)),
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: scheme.onPrimary.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(h.icon, color: scheme.onPrimary, size: 28),
+          ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -312,7 +322,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget _holidayTile(Holiday h, ColorScheme scheme) {
     return ListTile(
       dense: true,
-      leading: Text(h.emoji, style: const TextStyle(fontSize: 22)),
+      leading: CircleAvatar(
+        radius: 18,
+        backgroundColor: (h.isNacional ? scheme.primary : Colors.grey)
+            .withValues(alpha: 0.14),
+        child: Icon(h.icon,
+            size: 19, color: h.isNacional ? scheme.primary : Colors.grey),
+      ),
       title:
           Text(h.name, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Text('${_weekdays[h.date.weekday % 7]}, dia ${h.date.day}'
@@ -385,7 +401,7 @@ class _DaySheet extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Text(holiday.emoji, style: const TextStyle(fontSize: 22)),
+                  Icon(holiday.icon, size: 22, color: scheme.primary),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(

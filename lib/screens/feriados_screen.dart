@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../data/holidays.dart';
 import '../widgets/banner_ad.dart';
+import '../widgets/theme_toggle.dart';
 
 /// Próximos feriados (com contagem regressiva) + lista completa do ano,
 /// com seletor de ano (qualquer ano). Tudo calculado na hora.
@@ -37,7 +38,10 @@ class _FeriadosScreenState extends State<FeriadosScreen> {
 
     return Scaffold(
       bottomNavigationBar: const BannerPlaceholder(),
-      appBar: AppBar(title: const Text('Feriados')),
+      appBar: AppBar(
+        title: const Text('Feriados'),
+        actions: const [ThemeToggleButton()],
+      ),
       body: ListView(
         children: [
           // ---- Próximos feriados (destaque) ----
@@ -70,7 +74,10 @@ class _FeriadosScreenState extends State<FeriadosScreen> {
             ),
           ),
           const SizedBox(height: 4),
-          for (final h in yearList) _yearTile(h, scheme),
+          for (var i = 0; i < yearList.length; i++) ...[
+            _yearTile(yearList[i], scheme),
+            if (i == 5) const MediumRectangleAd(),
+          ],
           const SizedBox(height: 20),
         ],
       ),
@@ -101,7 +108,15 @@ class _FeriadosScreenState extends State<FeriadosScreen> {
       ),
       child: Row(
         children: [
-          Text(h.emoji, style: const TextStyle(fontSize: 34)),
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.22),
+              borderRadius: BorderRadius.circular(13),
+            ),
+            child: Icon(h.icon, color: Colors.white, size: 26),
+          ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -146,7 +161,8 @@ class _FeriadosScreenState extends State<FeriadosScreen> {
         backgroundColor: h.isNacional
             ? scheme.primary.withValues(alpha: 0.15)
             : Colors.grey.withValues(alpha: 0.15),
-        child: Text(h.emoji, style: const TextStyle(fontSize: 20)),
+        child: Icon(h.icon,
+            size: 20, color: h.isNacional ? scheme.primary : Colors.grey),
       ),
       title: Text(h.name,
           style: const TextStyle(fontWeight: FontWeight.w600)),

@@ -54,7 +54,7 @@ class NotifService {
       final eve = DateTime(h.date.year, h.date.month, h.date.day - 1, 18, 0);
       if (eve.isAfter(now)) {
         await _schedule(
-            id++, 'Amanhã é feriado! 🎉', '${h.emoji} ${h.name}', eve);
+            id++, 'Amanhã é feriado', h.name, eve);
       }
     }
   }
@@ -73,6 +73,10 @@ class NotifService {
           channelDescription: 'Avisos na véspera dos feriados',
           importance: Importance.high,
           priority: Priority.high,
+          // Ícone pequeno (status bar) + ícone colorido do app (largeIcon),
+          // para a notificação aparecer SEMPRE com a identidade do app.
+          icon: '@mipmap/ic_launcher',
+          largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,

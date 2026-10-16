@@ -21,7 +21,7 @@ class AdsService with WidgetsBindingObserver {
 
   // IDs reais (app31 Frases para Refletir — conta AdMob 5880219350817278)
   static const _realBanner = 'ca-app-pub-5880219350817278/1690432673';
-  static const _realInterstitial = 'ca-app-pub-0000000000000000/0000000000';
+  static const _realInterstitial = 'ca-app-pub-5880219350817278/5506719290';
   static const _realRewarded = 'ca-app-pub-5880219350817278/2580490866';
   static const _realAppOpen = 'ca-app-pub-0000000000000000/0000000000';
   static bool _ph(String id) => id.contains('0000000000');
@@ -32,8 +32,9 @@ class AdsService with WidgetsBindingObserver {
   /// Setado pelo banner (lê o AppState): usuário pagante não vê anúncios.
   bool adsRemoved = false;
 
-  /// Política "só banner": intersticial e app-open DESLIGADOS. Reversível.
-  bool interstitialEnabled = false;
+  /// Intersticial LIGADO (intervalo mínimo entre exibições + a cada N ações,
+  /// pra não atrapalhar). App-open ainda desligado (sem ID real).
+  bool interstitialEnabled = true;
   bool appOpenEnabled = false;
 
   InterstitialAd? _interstitial;
@@ -42,7 +43,7 @@ class AdsService with WidgetsBindingObserver {
   DateTime? _lastAppOpenShown;
   bool _showingFullScreenAd = false;
 
-  static const int interstitialEvery = 8;
+  static const int interstitialEvery = 6;
   int _actionsSinceLastAd = 0;
   DateTime? _lastInterstitialShown;
 

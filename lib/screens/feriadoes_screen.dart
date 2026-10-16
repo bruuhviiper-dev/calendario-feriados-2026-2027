@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../data/long_weekends.dart';
 import '../widgets/banner_ad.dart';
+import '../widgets/theme_toggle.dart';
 
 /// Feriadões / Emendas: fins de semana prolongados do ano, com fotos reais
 /// (clima de viagem) e sugestão de emenda.
@@ -40,6 +41,7 @@ class _FeriadoesScreenState extends State<FeriadoesScreen> {
       appBar: AppBar(
         title: const Text('Feriadões'),
         actions: [
+          const ThemeToggleButton(),
           IconButton(
             tooltip: 'Ano anterior',
             onPressed: () => setState(() => _year--),
@@ -65,7 +67,10 @@ class _FeriadoesScreenState extends State<FeriadoesScreen> {
           Text('Fins de semana prolongados e emendas que valem a pena.',
               style: TextStyle(color: scheme.onSurface.withValues(alpha: 0.6))),
           const SizedBox(height: 14),
-          for (var i = 0; i < good.length; i++) _card(good[i], i, scheme),
+          for (var i = 0; i < good.length; i++) ...[
+            _card(good[i], i, scheme),
+            if (i == 2) const MediumRectangleAd(),
+          ],
         ],
       ),
     );
@@ -137,7 +142,7 @@ class _FeriadoesScreenState extends State<FeriadoesScreen> {
                 right: 14,
                 child: Row(
                   children: [
-                    Text(h.emoji, style: const TextStyle(fontSize: 26)),
+                    Icon(h.icon, color: Colors.white, size: 24),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(h.name,

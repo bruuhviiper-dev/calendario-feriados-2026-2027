@@ -4,11 +4,12 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../data/app_info.dart';
-import '../data/app_theme.dart';
 import '../data/holidays.dart';
+import '../services/ads_service.dart';
 import '../services/app_state.dart';
 import '../services/notif_service.dart';
 import '../widgets/banner_ad.dart';
+import '../widgets/theme_toggle.dart';
 import 'appearance_screen.dart';
 import 'date_tools_screen.dart';
 import 'store_screen.dart';
@@ -96,7 +97,10 @@ class MoreScreen extends StatelessWidget {
     final apps = AppInfo.otherApps;
     return Scaffold(
       bottomNavigationBar: const BannerPlaceholder(),
-      appBar: AppBar(title: const Text('Mais')),
+      appBar: AppBar(
+        title: const Text('Mais'),
+        actions: const [ThemeToggleButton()],
+      ),
       body: ListView(
         children: [
           Consumer<AppState>(
@@ -104,7 +108,7 @@ class MoreScreen extends StatelessWidget {
               secondary: const Icon(Icons.notifications_active_rounded,
                   color: Color(0xFF2563EB)),
               title: const Text('Avisar dos feriados'),
-              subtitle: const Text('Notifica na véspera de cada feriado 🎉'),
+              subtitle: const Text('Notifica na véspera de cada feriado'),
               value: s.reminderOn,
               onChanged: (v) {
                 s.setReminder(on: v);
@@ -124,7 +128,7 @@ class MoreScreen extends StatelessWidget {
                   color: Color(0xFF059669)),
               title: const Text('Meu estado (feriados estaduais)'),
               subtitle: Text(s.uf.isEmpty
-                  ? 'Toque para escolher seu estado 📍'
+                  ? 'Toque para escolher seu estado'
                   : 'Mostrando feriados de ${Holidays.ufNames[s.uf]}'),
               trailing: s.uf.isEmpty
                   ? const Icon(Icons.chevron_right_rounded)
@@ -137,16 +141,22 @@ class MoreScreen extends StatelessWidget {
             leading:
                 const Icon(Icons.calculate_rounded, color: Color(0xFF2563EB)),
             title: const Text('Ferramentas de data'),
-            subtitle: const Text('Dias entre datas, somar/subtrair dias 🧮'),
-            onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const DateToolsScreen())),
+            subtitle: const Text('Dias entre datas, somar/subtrair dias'),
+            onTap: () {
+              AdsService.instance.registerActionAndMaybeShow();
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const DateToolsScreen()));
+            },
           ),
           ListTile(
             leading: const Icon(Icons.palette_rounded, color: Color(0xFF7C3AED)),
             title: const Text('Aparência e temas'),
-            subtitle: const Text('Modo escuro e cores do app 🎨'),
-            onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AppearanceScreen())),
+            subtitle: const Text('Modo escuro e cores do app'),
+            onTap: () {
+              AdsService.instance.registerActionAndMaybeShow();
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AppearanceScreen()));
+            },
           ),
           Consumer<AppState>(
             builder: (c, s, _) => s.adsRemoved
@@ -155,7 +165,7 @@ class MoreScreen extends StatelessWidget {
                     leading: const Icon(Icons.block_rounded,
                         color: Color(0xFFEF4444)),
                     title: const Text('Remover anúncios'),
-                    subtitle: const Text('Compra única • libera os temas 🚫'),
+                    subtitle: const Text('Compra única • libera os temas'),
                     onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const StoreScreen())),
                   ),
@@ -163,7 +173,7 @@ class MoreScreen extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.star_rounded, color: Color(0xFFFBBF24)),
             title: const Text('Avaliar na Play Store'),
-            subtitle: const Text('Sua nota ajuda muito 💛'),
+            subtitle: const Text('Sua nota ajuda muito'),
             onTap: () => _open(AppInfo.playUrl),
           ),
           ListTile(
@@ -173,23 +183,18 @@ class MoreScreen extends StatelessWidget {
             onTap: () =>
                 Share.share('Conheça o ${AppInfo.appName}! ${AppInfo.playUrl}'),
           ),
+          const MediumRectangleAd(),
           const SizedBox(height: 8),
-          // ---- Cross-promoção em destaque ----
+          // ---- Cross-promoção (visual sóbrio, estilo lista de apps) ----
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 2),
-            child: Row(
-              children: [
-                const Text('✨', style: TextStyle(fontSize: 18)),
-                const SizedBox(width: 8),
-                Text('Mais apps da Phantom',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w900)),
-              ],
-            ),
+            child: Text('Mais apps da Phantom',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800)),
           ),
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text('Todos grátis. Toque para conhecer 👇',
+            child: Text('Todos grátis — toque para conhecer',
                 style: TextStyle(fontSize: 12.5, color: Colors.grey)),
           ),
           for (int i = 0; i < apps.length; i++)
@@ -237,80 +242,60 @@ class _PromoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final accent = gradient.first;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: Material(
-        borderRadius: BorderRadius.circular(20),
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
-        elevation: 0,
-        child: Ink(
-          decoration: BoxDecoration(
-            gradient: AppTheme.gradient(gradient),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                  color: gradient.last.withValues(alpha: 0.35),
-                  blurRadius: 14,
-                  offset: const Offset(0, 6)),
-            ],
-          ),
-          child: InkWell(
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 46,
-                    height: 46,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(emoji, style: const TextStyle(fontSize: 24)),
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                  color: scheme.outlineVariant.withValues(alpha: 0.5)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                // Ícone com um leve tom da cor do app (identidade sem exagero).
+                Container(
+                  width: 44,
+                  height: 44,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: accent.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Text(title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          shadows: [
-                            Shadow(
-                                color: Colors.black26,
-                                blurRadius: 4,
-                                offset: Offset(0, 1)),
-                          ],
-                        )),
+                  child: Text(emoji, style: const TextStyle(fontSize: 22)),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: scheme.onSurface,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          )),
+                      const SizedBox(height: 1),
+                      Text('Grátis',
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: scheme.onSurface.withValues(alpha: 0.5))),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('Abrir',
-                            style: TextStyle(
-                                color: gradient.last,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800)),
-                        const SizedBox(width: 4),
-                        Icon(Icons.arrow_forward_rounded,
-                            size: 15, color: gradient.last),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                Icon(Icons.chevron_right_rounded,
+                    color: scheme.onSurface.withValues(alpha: 0.35)),
+              ],
             ),
           ),
         ),

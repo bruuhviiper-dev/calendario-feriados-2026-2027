@@ -3,6 +3,8 @@
 /// (algoritmo de Computus / Meeus-Jones-Butcher, calendário gregoriano).
 library;
 
+import 'package:flutter/material.dart';
+
 enum HolidayType { nacional, facultativo, estadual }
 
 class Holiday {
@@ -14,6 +16,13 @@ class Holiday {
 
   bool get isNacional => type == HolidayType.nacional;
   bool get isEstadual => type == HolidayType.estadual;
+
+  /// Ícone limpo (Material) por tipo — visual sóbrio no lugar dos emojis.
+  IconData get icon => switch (type) {
+        HolidayType.nacional => Icons.flag_rounded,
+        HolidayType.estadual => Icons.location_city_rounded,
+        HolidayType.facultativo => Icons.event_available_rounded,
+      };
 }
 
 class Holidays {
